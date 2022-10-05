@@ -6,11 +6,11 @@ from transformers import BertTokenizerFast
 
 class PatientSimDataset(Dataset):
     # Make the dataset for training or evaluating the patient simulator from a split (train / test) of patient states
-    def __init__(self, patients: List[dict], tokenizer: BertTokenizerFast, sampler_mode: str = "cn_1", pol_mode: str = "all_wo_pol"): # pol_mode in ["pos", "all_wo_pol", "all_w_pol"]
+    def __init__(self, patients: List[dict], tokenizer: BertTokenizerFast, sampler_mode: str = "cn_1", add_pol_embeds: bool = False): # add_pol_embeds in ["pos", "all_wo_pol", "all_w_pol"]
         self.patients = patients
         self.tokenizer = tokenizer
         self.sampler_mode = sampler_mode
-        self.pol_mode = pol_mode
+        self.add_pol_embeds = add_pol_embeds
 
         if self.sampler_mode == "cn_1":
             self.findings_sampler = self.naive_findings_sampler
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     train_patients = patients["train"]
 
     tokenizer = AutoTokenizer.from_pretrained("bert-base-chinese")
-    train_set = PatientSimDataset(patients=train_patients, tokenizer=tokenizer, sampler_mode="cn_1", pol_mode="all_wo_pol")
+    train_set = PatientSimDataset(patients=train_patients, tokenizer=tokenizer, sampler_mode="cn_1", add_pol_embeds="all_wo_pol")
     train_loader = DataLoader(train_set, batch_size=16, shuffle=True, pin_memory=True, collate_fn=train_set.collate_fn)
 
     for batch in train_loader:
